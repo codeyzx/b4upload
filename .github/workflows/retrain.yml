@@ -41,7 +41,7 @@ jobs:
                   git config --global user.email 'action@github.com'
 
                   # Cek status dulu, add hanya file model
-                  git add models/*.pkl
+                  git add -f models/*.pkl
 
                   # Commit hanya jika ada perubahan
                   # "|| echo" mencegah error jika model tidak berubah
