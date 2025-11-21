@@ -1,0 +1,19 @@
+# api/.funcignore
+
+# Abaikan folder environment lokal
+venv/
+.venv/
+env/
+
+# Abaikan cache python
+__pycache__/
+*.py[cod]
+
+# Abaikan git
+.git/
+.gitignore
+
+# Abaikan file testing/lokal
+local.settings.json
+test/
+tests/

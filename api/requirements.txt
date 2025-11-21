@@ -3,11 +3,9 @@
 # azure-monitor-opentelemetry 
 
 azure-functions
-pandas
 numpy
 scikit-learn
 lightgbm
 joblib
 pymongo
 requests
-python-dotenv

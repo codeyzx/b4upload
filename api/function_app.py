@@ -5,7 +5,6 @@ import requests
 import json
 from pymongo import MongoClient
 from datetime import datetime, timezone
-import pandas as pd
 import numpy as np
 from shared.model_loader import model_loader
 
