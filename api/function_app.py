@@ -104,7 +104,7 @@ def process_video_data(raw_item):
 # Ganti "0 0 0 * * *" jika ingin interval lain.
 # Contoh tiap 10 menit: "0 */10 * * * *"
 @app.schedule(
-    schedule="0 0 0 * * *", arg_name="myTimer", run_on_startup=True, use_monitor=False
+    schedule="0 0 0 * * *", arg_name="myTimer", run_on_startup=False, use_monitor=False
 )
 def daily_fetch_tiktok(myTimer: func.TimerRequest) -> None:
     if myTimer.past_due:

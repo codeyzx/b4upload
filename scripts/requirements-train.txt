@@ -1,0 +1,11 @@
+pandas
+numpy
+scikit-learn
+lightgbm
+shap
+pymongo
+joblib
+dnspython
+matplotlib
+tqdm
+numba
