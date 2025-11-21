@@ -204,7 +204,7 @@ def train():
     project_root = os.path.dirname(current_script_dir)
 
     # Tentukan folder models di root
-    models_dir = os.path.join(project_root, "models")
+    models_dir = os.path.join(project_root, "api", "models")
 
     print(f"💾 Menyimpan Artifacts ke: {models_dir}")
     os.makedirs(models_dir, exist_ok=True)

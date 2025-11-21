@@ -1,51 +1,51 @@
 name: Weekly Model Retraining
 
 on:
-    schedule:
-        # Jalan setiap hari Minggu jam 00:00 UTC
-        - cron: "0 0 * * 0"
-    workflow_dispatch: # Memungkinkan kita klik tombol "Run" manual untuk testing
+  schedule:
+    # Jalan setiap hari Minggu jam 00:00 UTC
+    - cron: "0 0 * * 0"
+  workflow_dispatch: # Memungkinkan kita klik tombol "Run" manual untuk testing
 
 jobs:
-    train-and-commit:
-        runs-on: ubuntu-latest
+  train-and-commit:
+    runs-on: ubuntu-latest
 
-        steps:
-            # 1. Ambil kode dari repo
-            - name: Checkout Repository
-              uses: actions/checkout@v3
+    steps:
+      # 1. Ambil kode dari repo
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-            # 2. Siapkan Python
-            - name: Set up Python 3.9
-              uses: actions/setup-python@v4
-              with:
-                  python-version: "3.9"
+      # 2. Siapkan Python
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
 
-            # 3. Install Library
-            - name: Install Dependencies
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install -r scripts/requirements-train.txt
+      # 3. Install Library
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r scripts/requirements-train.txt
 
-            # 4. Jalankan Script Training
-            # Kita ambil connection string dari GitHub Secrets
-            - name: Run Training Script
-              env:
-                  MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
-              run: python scripts/train_model.py
+      # 4. Jalankan Script Training
+      # Kita ambil connection string dari GitHub Secrets
+      - name: Run Training Script
+        env:
+          MONGODB_CONNECTION_STRING: ${{ secrets.MONGODB_CONNECTION_STRING }}
+        run: python scripts/train_model.py
 
-            # 5. Commit & Push Model Baru (Otomatisasi Git)
-            - name: Commit and Push Changes
-              run: |
-                  git config --global user.name 'GitHub Action Bot'
-                  git config --global user.email 'action@github.com'
+      # 5. Commit & Push Model Baru (Otomatisasi Git)
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name 'GitHub Action Bot'
+          git config --global user.email 'action@github.com'
 
-                  # Cek status dulu, add hanya file model
-                  git add -f models/*.pkl
+          # Cek status dulu, add hanya file model
+          git add -f api/models/*.pkl
 
-                  # Commit hanya jika ada perubahan
-                  # "|| echo" mencegah error jika model tidak berubah
-                  git commit -m "🤖 MLOps: Auto-update model artifacts" || echo "No changes to commit"
+          # Commit hanya jika ada perubahan
+          # "|| echo" mencegah error jika model tidak berubah
+          git commit -m "🤖 MLOps: Auto-update model artifacts" || echo "No changes to commit"
 
-                  # Push kembali ke repo
-                  git push
+          # Push kembali ke repo
+          git push

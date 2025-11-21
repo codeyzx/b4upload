@@ -23,13 +23,13 @@ class ModelLoader:
         pass
 
     def _load_models(self):
-        """Load semua model .pkl dari folder models/"""
+        """Load semua model .pkl dari folder api/models/"""
         if self._models_loaded:
             return
 
         try:
             # Path ke folder models (relatif dari api/)
-            models_path = Path(__file__).parent.parent.parent / "models"
+            models_path = Path(__file__).parent.parent / "models"
 
             logging.info(f"Loading models from: {models_path}")
 
