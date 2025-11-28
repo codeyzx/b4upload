@@ -3,7 +3,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   avatarUrl?: string;
 }
 
@@ -15,7 +15,7 @@ export interface AuthState {
 }
 
 // Theme Types
-export type ThemeMode = 'dark' | 'light';
+export type ThemeMode = "dark" | "light";
 
 export interface ThemeState {
   mode: ThemeMode;
@@ -30,7 +30,7 @@ export interface PredictionFormData {
 }
 
 // Prediction Result Types
-export type EngagementStatus = 'HIGH' | 'MEDIUM' | 'LOW';
+export type EngagementStatus = "HIGH" | "MEDIUM" | "LOW";
 
 export interface ProbabilityDistribution {
   low: number;

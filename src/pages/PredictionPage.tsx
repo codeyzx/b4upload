@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { usePrediction } from '../contexts/PredictionContext';
-import { PredictionForm } from '../components/PredictionForm';
-import { PredictionResult } from '../components/PredictionResult';
-import { LoginModal } from '../components/LoginModal';
-import { Button } from '../components/ui/Button';
-import { PredictionFormData } from '../types';
-import { predictVideo } from '../services/predictionService';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { usePrediction } from "../contexts/PredictionContext";
+import { PredictionForm } from "../components/PredictionForm";
+import { PredictionResult } from "../components/PredictionResult";
+import { LoginModal } from "../components/LoginModal";
+import { Button } from "../components/ui/Button";
+import { PredictionFormData } from "../types";
+import { predictVideo } from "../services/predictionService";
 
 export const PredictionPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
-  const { currentPrediction, isLoading, setPrediction, setLoading, setError } = usePrediction();
+  const { currentPrediction, isLoading, setPrediction, setLoading, setError } =
+    usePrediction();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -32,12 +33,12 @@ export const PredictionPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const result = await predictVideo(data);
       setPrediction(result);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Prediction failed');
-      console.error('Prediction error:', error);
+      setError(error instanceof Error ? error.message : "Prediction failed");
+      console.error("Prediction error:", error);
     } finally {
       setLoading(false);
     }
@@ -45,7 +46,7 @@ export const PredictionPage: React.FC = () => {
 
   const handleCloseLoginModal = () => {
     if (!isAuthenticated) {
-      navigate('/');
+      navigate("/");
     } else {
       setIsLoginModalOpen(false);
     }
@@ -59,7 +60,7 @@ export const PredictionPage: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             className="flex items-center space-x-2"
           >
             <ArrowLeft size={18} />

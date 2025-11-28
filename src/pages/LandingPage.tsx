@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Sparkles, Zap, TrendingUp } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { TrendingTable } from '../components/TrendingTable';
-import { LoginModal } from '../components/LoginModal';
-import { Button } from '../components/ui/Button';
-import { Badge } from '../components/ui/Badge';
-import { MOCK_TRENDING_VIDEOS } from '../data/mockData';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Sparkles, Zap, TrendingUp } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { TrendingTable } from "../components/TrendingTable";
+import { LoginModal } from "../components/LoginModal";
+import { Button } from "../components/ui/Button";
+import { Badge } from "../components/ui/Badge";
+import { MOCK_TRENDING_VIDEOS } from "../data/mockData";
 
 export const LandingPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -16,7 +16,7 @@ export const LandingPage: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {
-    if (searchParams.get('login') === 'true') {
+    if (searchParams.get("login") === "true") {
       setIsLoginModalOpen(true);
     }
   }, [searchParams]);
@@ -28,14 +28,14 @@ export const LandingPage: React.FC = () => {
 
   const handlePredictClick = () => {
     if (isAuthenticated) {
-      navigate('/predict');
+      navigate("/predict");
     } else {
       setIsLoginModalOpen(true);
     }
   };
 
   const handleLoadMore = () => {
-    setVisibleCount(prev => Math.min(prev + 5, MOCK_TRENDING_VIDEOS.length));
+    setVisibleCount((prev) => Math.min(prev + 5, MOCK_TRENDING_VIDEOS.length));
   };
 
   return (
@@ -44,7 +44,7 @@ export const LandingPage: React.FC = () => {
       <section className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-[#0B1120] dark:to-[#0F172A] pt-20 pb-32">
         {/* Background Grid Pattern */}
         <div className="absolute inset-0 bg-grid-pattern opacity-30" />
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Badge */}
           <div className="inline-flex items-center space-x-2 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -67,8 +67,9 @@ export const LandingPage: React.FC = () => {
 
           {/* Subtitle */}
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-            Leverage AI to analyze your content parameters and predict engagement 
-            rates before publishing. Make data-driven decisions for viral success.
+            Leverage AI to analyze your content parameters and predict
+            engagement rates before publishing. Make data-driven decisions for
+            viral success.
           </p>
 
           {/* CTA Button */}
@@ -82,11 +83,7 @@ export const LandingPage: React.FC = () => {
               <Zap size={20} className="mr-2" />
               Predict Your Content
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto"
-            >
+            <Button variant="outline" size="lg" className="w-full sm:w-auto">
               Learn More
             </Button>
           </div>

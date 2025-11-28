@@ -1,15 +1,27 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Minus, Lightbulb, CheckCircle, Loader2, AlertCircle, Sparkles } from 'lucide-react';
-import { PredictionResult as PredictionResultType } from '../types';
-import { Card } from './ui/Card';
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Lightbulb,
+  CheckCircle,
+  Loader2,
+  AlertCircle,
+  Sparkles,
+} from "lucide-react";
+import { PredictionResult as PredictionResultType } from "../types";
+import { Card } from "./ui/Card";
 
 interface PredictionResultProps {
   result: PredictionResultType | null;
   isLoading: boolean;
 }
 
-export const PredictionResult: React.FC<PredictionResultProps> = ({ result, isLoading }) => {
+export const PredictionResult: React.FC<PredictionResultProps> = ({
+  result,
+  isLoading,
+}) => {
   if (isLoading) {
     return <LoadingState />;
   }
@@ -46,7 +58,11 @@ export const PredictionResult: React.FC<PredictionResultProps> = ({ result, isLo
               </p>
               <div className="flex items-center space-x-3">
                 {getEngagementIcon(result.engagementStatus)}
-                <span className={`text-3xl font-bold ${getEngagementColor(result.engagementStatus)}`}>
+                <span
+                  className={`text-3xl font-bold ${getEngagementColor(
+                    result.engagementStatus
+                  )}`}
+                >
                   {result.engagementStatus}
                 </span>
               </div>
@@ -75,7 +91,7 @@ export const PredictionResult: React.FC<PredictionResultProps> = ({ result, isLo
             <TrendingUp size={20} className="text-violet-600" />
             <span>Probability Distribution</span>
           </h3>
-          
+
           <div className="space-y-3">
             <ProbabilityBar
               label="High"
@@ -101,14 +117,17 @@ export const PredictionResult: React.FC<PredictionResultProps> = ({ result, isLo
             <Lightbulb size={20} className="text-amber-500" />
             <span>AI Suggestions</span>
           </h3>
-          
+
           <div className="space-y-2">
             {result.suggestions.map((suggestion, index) => (
               <div
                 key={index}
                 className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700"
               >
-                <CheckCircle size={16} className="text-emerald-500 mt-0.5 flex-shrink-0" />
+                <CheckCircle
+                  size={16}
+                  className="text-emerald-500 mt-0.5 flex-shrink-0"
+                />
                 <p className="text-sm text-gray-700 dark:text-gray-300">
                   {suggestion}
                 </p>
@@ -120,7 +139,10 @@ export const PredictionResult: React.FC<PredictionResultProps> = ({ result, isLo
         {/* Model Insight */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
           <div className="flex items-start space-x-3">
-            <AlertCircle size={18} className="text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+            <AlertCircle
+              size={18}
+              className="text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0"
+            />
             <div>
               <p className="text-sm font-medium text-blue-900 dark:text-blue-300 mb-1">
                 Model Insight
@@ -142,9 +164,15 @@ const LoadingState: React.FC = () => (
     <div className="text-center space-y-6">
       <div className="relative">
         <div className="w-20 h-20 mx-auto bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center">
-          <Sparkles size={32} className="text-violet-600 dark:text-violet-400" />
+          <Sparkles
+            size={32}
+            className="text-violet-600 dark:text-violet-400"
+          />
         </div>
-        <Loader2 size={24} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-violet-600 animate-spin" />
+        <Loader2
+          size={24}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-violet-600 animate-spin"
+        />
       </div>
       <div>
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
@@ -155,7 +183,10 @@ const LoadingState: React.FC = () => (
         </p>
       </div>
       <div className="w-64 mx-auto h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-        <div className="h-full bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-full animate-pulse" style={{ width: '60%' }} />
+        <div
+          className="h-full bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-full animate-pulse"
+          style={{ width: "60%" }}
+        />
       </div>
     </div>
   </div>
@@ -172,13 +203,23 @@ const EmptyState: React.FC = () => (
           No Prediction Yet
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Fill in the video details on the left and click "Generate Prediction" to see AI analysis results.
+          Fill in the video details on the left and click "Generate Prediction"
+          to see AI analysis results.
         </p>
       </div>
       <div className="flex justify-center space-x-2">
-        <div className="w-2 h-2 bg-gray-300 dark:bg-gray-700 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-        <div className="w-2 h-2 bg-gray-300 dark:bg-gray-700 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-        <div className="w-2 h-2 bg-gray-300 dark:bg-gray-700 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        <div
+          className="w-2 h-2 bg-gray-300 dark:bg-gray-700 rounded-full animate-bounce"
+          style={{ animationDelay: "0ms" }}
+        />
+        <div
+          className="w-2 h-2 bg-gray-300 dark:bg-gray-700 rounded-full animate-bounce"
+          style={{ animationDelay: "150ms" }}
+        />
+        <div
+          className="w-2 h-2 bg-gray-300 dark:bg-gray-700 rounded-full animate-bounce"
+          style={{ animationDelay: "300ms" }}
+        />
       </div>
     </div>
   </div>
@@ -218,14 +259,18 @@ const CircularProgress: React.FC<{ value: number }> = ({ value }) => {
 interface ProbabilityBarProps {
   label: string;
   value: number;
-  color: 'emerald' | 'amber' | 'red';
+  color: "emerald" | "amber" | "red";
 }
 
-const ProbabilityBar: React.FC<ProbabilityBarProps> = ({ label, value, color }) => {
+const ProbabilityBar: React.FC<ProbabilityBarProps> = ({
+  label,
+  value,
+  color,
+}) => {
   const colorClasses = {
-    emerald: 'from-emerald-500 to-emerald-600',
-    amber: 'from-amber-500 to-amber-600',
-    red: 'from-red-500 to-red-600',
+    emerald: "from-emerald-500 to-emerald-600",
+    amber: "from-amber-500 to-amber-600",
+    red: "from-red-500 to-red-600",
   };
 
   return (
@@ -242,7 +287,7 @@ const ProbabilityBar: React.FC<ProbabilityBarProps> = ({ label, value, color }) 
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${value}%` }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           className={`h-full bg-gradient-to-r ${colorClasses[color]} rounded-full`}
         />
       </div>
@@ -252,11 +297,11 @@ const ProbabilityBar: React.FC<ProbabilityBarProps> = ({ label, value, color }) 
 
 const getEngagementIcon = (status: string) => {
   switch (status) {
-    case 'HIGH':
+    case "HIGH":
       return <TrendingUp size={24} className="text-emerald-500" />;
-    case 'MEDIUM':
+    case "MEDIUM":
       return <Minus size={24} className="text-amber-500" />;
-    case 'LOW':
+    case "LOW":
       return <TrendingDown size={24} className="text-red-500" />;
     default:
       return <Minus size={24} className="text-gray-500" />;
@@ -265,13 +310,13 @@ const getEngagementIcon = (status: string) => {
 
 const getEngagementColor = (status: string): string => {
   switch (status) {
-    case 'HIGH':
-      return 'text-emerald-600 dark:text-emerald-400';
-    case 'MEDIUM':
-      return 'text-amber-600 dark:text-amber-400';
-    case 'LOW':
-      return 'text-red-600 dark:text-red-400';
+    case "HIGH":
+      return "text-emerald-600 dark:text-emerald-400";
+    case "MEDIUM":
+      return "text-amber-600 dark:text-amber-400";
+    case "LOW":
+      return "text-red-600 dark:text-red-400";
     default:
-      return 'text-gray-600 dark:text-gray-400';
+      return "text-gray-600 dark:text-gray-400";
   }
 };

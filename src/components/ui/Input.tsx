@@ -1,14 +1,16 @@
-import React, { InputHTMLAttributes, forwardRef } from 'react';
-import { BaseComponentProps } from '../../types';
+import React, { InputHTMLAttributes, forwardRef } from "react";
+import { BaseComponentProps } from "../../types";
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement>, BaseComponentProps {
+interface InputProps
+  extends InputHTMLAttributes<HTMLInputElement>,
+    BaseComponentProps {
   label?: string;
   error?: string;
   icon?: React.ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className = '', label, error, icon, ...props }, ref) => {
+  ({ className = "", label, error, icon, ...props }, ref) => {
     return (
       <div className="w-full">
         {label && (
@@ -35,19 +37,25 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               focus:outline-none focus:border-2 focus:border-indigo-500
               focus:ring-[3px] focus:ring-indigo-500/15
               disabled:opacity-50 disabled:cursor-not-allowed
-              ${icon ? 'pl-12' : ''}
-              ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/15' : ''}
+              ${icon ? "pl-12" : ""}
+              ${
+                error
+                  ? "border-red-500 focus:border-red-500 focus:ring-red-500/15"
+                  : ""
+              }
               ${className}
             `}
             {...props}
           />
         </div>
         {error && (
-          <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">
+            {error}
+          </p>
         )}
       </div>
     );
   }
 );
 
-Input.displayName = 'Input';
+Input.displayName = "Input";

@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { PredictionResult, PredictionState } from '../types';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { PredictionResult, PredictionState } from "../types";
 
 interface PredictionContextType extends PredictionState {
   setPrediction: (result: PredictionResult | null) => void;
@@ -8,12 +8,14 @@ interface PredictionContextType extends PredictionState {
   clearPrediction: () => void;
 }
 
-const PredictionContext = createContext<PredictionContextType | undefined>(undefined);
+const PredictionContext = createContext<PredictionContextType | undefined>(
+  undefined
+);
 
 export const usePrediction = () => {
   const context = useContext(PredictionContext);
   if (!context) {
-    throw new Error('usePrediction must be used within PredictionProvider');
+    throw new Error("usePrediction must be used within PredictionProvider");
   }
   return context;
 };
@@ -22,7 +24,9 @@ interface PredictionProviderProps {
   children: ReactNode;
 }
 
-export const PredictionProvider: React.FC<PredictionProviderProps> = ({ children }) => {
+export const PredictionProvider: React.FC<PredictionProviderProps> = ({
+  children,
+}) => {
   const [predictionState, setPredictionState] = useState<PredictionState>({
     currentPrediction: null,
     isLoading: false,
@@ -30,7 +34,7 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({ children
   });
 
   const setPrediction = (result: PredictionResult | null) => {
-    setPredictionState(prev => ({
+    setPredictionState((prev) => ({
       ...prev,
       currentPrediction: result,
       error: null,
@@ -38,14 +42,14 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({ children
   };
 
   const setLoading = (loading: boolean) => {
-    setPredictionState(prev => ({
+    setPredictionState((prev) => ({
       ...prev,
       isLoading: loading,
     }));
   };
 
   const setError = (error: string | null) => {
-    setPredictionState(prev => ({
+    setPredictionState((prev) => ({
       ...prev,
       error,
       isLoading: false,
@@ -68,5 +72,9 @@ export const PredictionProvider: React.FC<PredictionProviderProps> = ({ children
     clearPrediction,
   };
 
-  return <PredictionContext.Provider value={value}>{children}</PredictionContext.Provider>;
+  return (
+    <PredictionContext.Provider value={value}>
+      {children}
+    </PredictionContext.Provider>
+  );
 };

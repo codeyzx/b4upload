@@ -1,9 +1,9 @@
-import React from 'react';
-import { Eye, Heart, Save } from 'lucide-react';
-import { TrendingVideo } from '../types';
-import { Avatar } from './ui/Avatar';
-import { Badge } from './ui/Badge';
-import { Button } from './ui/Button';
+import React from "react";
+import { Eye, Heart, Save } from "lucide-react";
+import { TrendingVideo } from "../types";
+import { Avatar } from "./ui/Avatar";
+import { Badge } from "./ui/Badge";
+import { Button } from "./ui/Button";
 
 interface TrendingTableProps {
   videos: TrendingVideo[];
@@ -102,9 +102,9 @@ export const TrendingTable: React.FC<TrendingTableProps> = ({
                   {/* Creator Info */}
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
-                      <Avatar 
-                        src={video.creatorAvatar} 
-                        alt={video.creatorName} 
+                      <Avatar
+                        src={video.creatorAvatar}
+                        alt={video.creatorName}
                         size="md"
                         online
                       />
@@ -163,13 +163,13 @@ export const TrendingTable: React.FC<TrendingTableProps> = ({
 
                   {/* Engagement Rate */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge 
+                    <Badge
                       variant={
-                        parseFloat(video.engagementRate) >= 15 
-                          ? 'success' 
-                          : parseFloat(video.engagementRate) >= 10 
-                          ? 'warning' 
-                          : 'default'
+                        parseFloat(video.engagementRate) >= 15
+                          ? "success"
+                          : parseFloat(video.engagementRate) >= 10
+                          ? "warning"
+                          : "default"
                       }
                       size="md"
                     >
@@ -203,10 +203,7 @@ export const TrendingTable: React.FC<TrendingTableProps> = ({
         {/* Load More Button */}
         {hasMore && (
           <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-center">
-            <Button
-              variant="outline"
-              onClick={onLoadMore}
-            >
+            <Button variant="outline" onClick={onLoadMore}>
               Load More Videos
             </Button>
           </div>

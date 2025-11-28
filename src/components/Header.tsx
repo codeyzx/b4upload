@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, ChevronDown, LogOut, Zap } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { ThemeToggle } from './ThemeToggle';
-import { Button } from './ui/Button';
-import { Avatar } from './ui/Avatar';
+import React, { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Sparkles, ChevronDown, LogOut, Zap } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { ThemeToggle } from "./ThemeToggle";
+import { Button } from "./ui/Button";
+import { Avatar } from "./ui/Avatar";
 
 export const Header: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -13,16 +13,16 @@ export const Header: React.FC = () => {
   const location = useLocation();
 
   const handlePredictClick = () => {
-    navigate('/predict');
+    navigate("/predict");
   };
 
   const handleLogout = () => {
     logout();
     setIsDropdownOpen(false);
-    navigate('/');
+    navigate("/");
   };
 
-  const isOnPredictPage = location.pathname === '/predict';
+  const isOnPredictPage = location.pathname === "/predict";
 
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/90 dark:bg-gray-900/90 border-b-[1.5px] border-gray-200 dark:border-gray-800">
@@ -50,7 +50,12 @@ export const Header: React.FC = () => {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 border-[1.5px] border-transparent hover:border-gray-200 dark:hover:border-gray-700"
                 >
-                  <Avatar src={user.avatarUrl} alt={user.name} size="sm" online />
+                  <Avatar
+                    src={user.avatarUrl}
+                    alt={user.name}
+                    size="sm"
+                    online
+                  />
                   <div className="hidden sm:block text-left">
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {user.name}
@@ -59,17 +64,19 @@ export const Header: React.FC = () => {
                       {user.email}
                     </p>
                   </div>
-                  <ChevronDown 
-                    size={16} 
-                    className={`text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                  <ChevronDown
+                    size={16}
+                    className={`text-gray-500 transition-transform duration-200 ${
+                      isDropdownOpen ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
 
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-10" 
+                    <div
+                      className="fixed inset-0 z-10"
                       onClick={() => setIsDropdownOpen(false)}
                     />
                     <div className="absolute right-0 mt-2 w-64 py-2 bg-white dark:bg-gray-800 border-[1.5px] border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-20 animate-in fade-in slide-in-from-top-2 duration-200">
@@ -122,7 +129,7 @@ export const Header: React.FC = () => {
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => navigate('/?login=true')}
+                onClick={() => navigate("/?login=true")}
               >
                 Sign In
               </Button>

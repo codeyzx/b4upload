@@ -1,23 +1,26 @@
-import { User, TrendingVideo } from '../types';
+import { User, TrendingVideo } from "../types";
 
 export const DEMO_USER: User = {
-  id: '1',
-  name: 'Alex Rivera',
-  email: 'demo@b4upload.com',
-  role: 'user',
-  avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop'
+  id: "1",
+  name: "Alex Rivera",
+  email: "demo@b4upload.com",
+  role: "user",
+  avatarUrl:
+    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop",
 };
 
-export const DEMO_PASSWORD = 'demo123';
+export const DEMO_PASSWORD = "demo123";
 
 export const MOCK_TRENDING_VIDEOS: TrendingVideo[] = [
   {
     id: 1,
-    thumbnail: "https://images.unsplash.com/photo-1618172193622-ae2d025f4032?w=400&h=300&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1618172193622-ae2d025f4032?w=400&h=300&fit=crop",
     title: "Morning Coffee Routine Aesthetic",
     duration: "21s",
     creatorName: "Sarah Johnson",
-    creatorAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
+    creatorAvatar:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
     creatorUsername: "@aestheticvibes",
     country: "🇺🇸",
     category: "Lifestyle",
@@ -29,11 +32,13 @@ export const MOCK_TRENDING_VIDEOS: TrendingVideo[] = [
   },
   {
     id: 2,
-    thumbnail: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop",
     title: "5-Minute Pasta Recipe Hack",
     duration: "45s",
     creatorName: "Chef Marco",
-    creatorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+    creatorAvatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
     creatorUsername: "@chefmarco",
     country: "🇮🇹",
     category: "Food",
@@ -45,11 +50,13 @@ export const MOCK_TRENDING_VIDEOS: TrendingVideo[] = [
   },
   {
     id: 3,
-    thumbnail: "https://images.unsplash.com/photo-1547153760-18fc9498041f?w=400&h=300&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1547153760-18fc9498041f?w=400&h=300&fit=crop",
     title: "Dance Challenge 2024 Remix",
     duration: "33s",
     creatorName: "DanceCrew Elite",
-    creatorAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+    creatorAvatar:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
     creatorUsername: "@dancecrew",
     country: "🇰🇷",
     category: "Entertainment",
@@ -61,11 +68,13 @@ export const MOCK_TRENDING_VIDEOS: TrendingVideo[] = [
   },
   {
     id: 4,
-    thumbnail: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
     title: "DIY Room Makeover Under $100",
     duration: "58s",
     creatorName: "Home Hacks Pro",
-    creatorAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    creatorAvatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
     creatorUsername: "@homehacks",
     country: "🇬🇧",
     category: "DIY",
@@ -77,11 +86,13 @@ export const MOCK_TRENDING_VIDEOS: TrendingVideo[] = [
   },
   {
     id: 5,
-    thumbnail: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=300&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=300&fit=crop",
     title: "30-Day Fitness Transformation",
     duration: "42s",
     creatorName: "FitLife Coach",
-    creatorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    creatorAvatar:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
     creatorUsername: "@fitlifecoach",
     country: "🇦🇺",
     category: "Fitness",
@@ -93,11 +104,13 @@ export const MOCK_TRENDING_VIDEOS: TrendingVideo[] = [
   },
   {
     id: 6,
-    thumbnail: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&h=300&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&h=300&fit=crop",
     title: "When You Forget Your Password",
     duration: "27s",
     creatorName: "Comedy Central",
-    creatorAvatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&h=200&fit=crop",
+    creatorAvatar:
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&h=200&fit=crop",
     creatorUsername: "@funnyskits",
     country: "🇺🇸",
     category: "Comedy",
@@ -109,11 +122,13 @@ export const MOCK_TRENDING_VIDEOS: TrendingVideo[] = [
   },
   {
     id: 7,
-    thumbnail: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400&h=300&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400&h=300&fit=crop",
     title: "Hidden Travel Gems in Japan",
     duration: "51s",
     creatorName: "Wanderlust Japan",
-    creatorAvatar: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=200&h=200&fit=crop",
+    creatorAvatar:
+      "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=200&h=200&fit=crop",
     creatorUsername: "@wanderlust_jp",
     country: "🇯🇵",
     category: "Travel",
@@ -125,11 +140,13 @@ export const MOCK_TRENDING_VIDEOS: TrendingVideo[] = [
   },
   {
     id: 8,
-    thumbnail: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&h=300&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&h=300&fit=crop",
     title: "Everyday Makeup Tutorial",
     duration: "38s",
     creatorName: "Glam Guru Beauty",
-    creatorAvatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200&h=200&fit=crop",
+    creatorAvatar:
+      "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200&h=200&fit=crop",
     creatorUsername: "@glamguru",
     country: "🇫🇷",
     category: "Beauty",

@@ -1,8 +1,8 @@
-import React, { useState, FormEvent } from 'react';
-import { X } from 'lucide-react';
-import { Button } from './ui/Button';
-import { Input } from './ui/Input';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, FormEvent } from "react";
+import { X } from "lucide-react";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { useAuth } from "../contexts/AuthContext";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -11,23 +11,23 @@ interface LoginModalProps {
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
       await login(email, password);
       onClose();
-      setEmail('');
-      setPassword('');
+      setEmail("");
+      setPassword("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -38,11 +38,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Overlay */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal Content */}
       <div className="relative bg-white dark:bg-gray-800 border-[1.5px] border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in fade-in zoom-in duration-200">
         {/* Close Button */}
