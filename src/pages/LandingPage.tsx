@@ -1,37 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sparkles, Zap, TrendingUp } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
 import { TrendingTable } from "../components/TrendingTable";
-import { LoginModal } from "../components/LoginModal";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { MOCK_TRENDING_VIDEOS } from "../data/mockData";
 
 export const LandingPage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [visibleCount, setVisibleCount] = useState(5);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (searchParams.get("login") === "true") {
-      setIsLoginModalOpen(true);
-    }
-  }, [searchParams]);
-
-  const handleCloseLoginModal = () => {
-    setIsLoginModalOpen(false);
-    setSearchParams({});
-  };
 
   const handlePredictClick = () => {
-    if (isAuthenticated) {
-      navigate("/predict");
-    } else {
-      setIsLoginModalOpen(true);
-    }
+    navigate("/predict");
   };
 
   const handleLoadMore = () => {
@@ -145,9 +125,6 @@ export const LandingPage: React.FC = () => {
           />
         </div>
       </section>
-
-      {/* Login Modal */}
-      <LoginModal isOpen={isLoginModalOpen} onClose={handleCloseLoginModal} />
     </div>
   );
 };

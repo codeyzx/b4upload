@@ -1,35 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
 import { usePrediction } from "../contexts/PredictionContext";
 import { PredictionForm } from "../components/PredictionForm";
 import { PredictionResult } from "../components/PredictionResult";
-import { LoginModal } from "../components/LoginModal";
 import { Button } from "../components/ui/Button";
 import { PredictionFormData } from "../types";
 import { predictVideo } from "../services/predictionService";
 
 export const PredictionPage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
   const { currentPrediction, isLoading, setPrediction, setLoading, setError } =
     usePrediction();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Check authentication on mount
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setIsLoginModalOpen(true);
-    }
-  }, [isAuthenticated]);
-
   const handlePredictionSubmit = async (data: PredictionFormData) => {
-    if (!isAuthenticated) {
-      setIsLoginModalOpen(true);
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
@@ -41,14 +25,6 @@ export const PredictionPage: React.FC = () => {
       console.error("Prediction error:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCloseLoginModal = () => {
-    if (!isAuthenticated) {
-      navigate("/");
-    } else {
-      setIsLoginModalOpen(false);
     }
   };
 
@@ -87,9 +63,6 @@ export const PredictionPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Login Modal */}
-      <LoginModal isOpen={isLoginModalOpen} onClose={handleCloseLoginModal} />
     </div>
   );
 };

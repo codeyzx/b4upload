@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { PredictionProvider } from "./contexts/PredictionContext";
 import { MainLayout } from "./layouts/MainLayout";
@@ -10,16 +9,14 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <AuthProvider>
-          <PredictionProvider>
-            <Routes>
-              <Route path="/" element={<MainLayout />}>
-                <Route index element={<LandingPage />} />
-                <Route path="predict" element={<PredictionPage />} />
-              </Route>
-            </Routes>
-          </PredictionProvider>
-        </AuthProvider>
+        <PredictionProvider>
+          <Routes>
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<LandingPage />} />
+              <Route path="predict" element={<PredictionPage />} />
+            </Route>
+          </Routes>
+        </PredictionProvider>
       </ThemeProvider>
     </BrowserRouter>
   );
