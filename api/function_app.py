@@ -142,6 +142,9 @@ def transform_mongo_doc(doc):
     """
     Transform MongoDB document to frontend-friendly format
     Handles missing fields gracefully with defaults
+    
+    Note: Tidak mengirim URL yang expired. Frontend akan generate TikTok URL
+    menggunakan author_username dan video_id.
     """
     doc_id = doc.get("_id", "unknown")
     try:
@@ -167,21 +170,38 @@ def transform_mongo_doc(doc):
         transformed = {
             "_id": str(doc.get("_id", "")),
             "video_id": doc.get("video_id", ""),
+            
+            # Author Information
             "author_username": doc.get("author_username", "Unknown"),
+            "author_nickname": doc.get("author_nickname", ""),
             "author_id": doc.get("author_id", ""),
+            "author_followers": doc.get("author_followers", 0),
+            "author_verified": doc.get("author_verified", False),
+            
+            # Description and hashtags
             "description": doc.get("description", ""),
             "hashtags": doc.get("hashtags", []),
             "hashtags_count": doc.get("hashtags_count", 0),
             "create_time": create_time,
+            
+            # Video Metadata
+            "video_duration": video_duration,
+            
+            # Engagement Statistics
             "stats": {
                 "play_count": play_count,
                 "digg_count": digg_count,
                 "comment_count": stats.get("comment_count", 0),
                 "share_count": stats.get("share_count", 0),
+                "collect_count": stats.get("collect_count", 0),
             },
-            "video_duration": video_duration,
+            
+            # Music info
             "music_title": music_title,
+            
+            # Metadata
             "fetched_at": doc.get("fetched_at", datetime.now()).isoformat() if hasattr(doc.get("fetched_at"), "isoformat") else str(doc.get("fetched_at", "")),
+            
             # Additional formatted fields for frontend
             "formatted_views": format_number(play_count),
             "formatted_likes": format_number(digg_count),
@@ -193,23 +213,27 @@ def transform_mongo_doc(doc):
         return transformed
     except Exception as e:
         logging.error(f"Error transforming document {doc_id}: {str(e)[:200]}")
-        # Return minimal valid document
+        # Return minimal valid document with all fields
         return {
             "_id": str(doc.get("_id", "")),
             "video_id": doc.get("video_id", ""),
             "author_username": "Unknown",
+            "author_nickname": "",
             "author_id": "",
+            "author_followers": 0,
+            "author_verified": False,
             "description": "",
             "hashtags": [],
             "hashtags_count": 0,
             "create_time": 0,
+            "video_duration": 0,
             "stats": {
                 "play_count": 0,
                 "digg_count": 0,
                 "comment_count": 0,
                 "share_count": 0,
+                "collect_count": 0,
             },
-            "video_duration": 0,
             "music_title": "Original Sound",
             "fetched_at": datetime.now().isoformat(),
             "formatted_views": "0",
@@ -224,6 +248,9 @@ def process_video_data(raw_item):
     """
     Mengubah raw data dari API menjadi format yang siap untuk Database & AI.
     Menangani kemungkinan key yang berbeda/kosong dengan .get()
+    
+    Note: Tidak menyimpan URL yang expired (avatar, thumbnail, video URL).
+    TikTok URL akan di-generate di frontend menggunakan author_username dan video_id.
     """
     # Mapping field disesuaikan dengan struktur umum tiktok-api23
     # (Perlu disesuaikan jika struktur raw JSON berbeda sedikit)
@@ -234,33 +261,52 @@ def process_video_data(raw_item):
     # Ekstraksi Hashtag Manual
     hashtags = [tag.strip("#") for tag in desc.split() if tag.startswith("#")]
 
-    # Author info
+    # Author info - extract comprehensive author details
     author = raw_item.get("author", {})
+    author_stats = author.get("stats", {})
 
     # Stats info
     stats = raw_item.get("stats", {})
 
     # Music info
     music = raw_item.get("music", {})
+    
+    # Video info
+    video = raw_item.get("video", {})
 
     clean_doc = {
         "_id": video_id,  # Primary Key
         "video_id": video_id,
-        "author_username": author.get("uniqueId") or author.get("nickname"),
-        "author_id": author.get("id"),
+        
+        # Author Information
+        "author_username": author.get("uniqueId") or "Unknown",
+        "author_nickname": author.get("nickname") or "",
+        "author_id": author.get("id") or "",
+        "author_followers": author_stats.get("followerCount", 0),
+        "author_verified": author.get("verified", False),
+        
+        # Description and hashtags
         "description": desc,
         "hashtags": hashtags,
         "hashtags_count": len(hashtags),
         "create_time": raw_item.get("createTime"),
-        # Simpan metrics untuk AI
+        
+        # Video Metadata
+        "video_duration": video.get("duration", 0),
+        
+        # Engagement Statistics (organized with new collect_count field)
         "stats": {
             "play_count": stats.get("playCount", 0),
             "digg_count": stats.get("diggCount", 0),
             "comment_count": stats.get("commentCount", 0),
             "share_count": stats.get("shareCount", 0),
+            "collect_count": stats.get("collectCount", 0),
         },
-        "video_duration": raw_item.get("video", {}).get("duration", 0),
+        
+        # Music info
         "music_title": music.get("title", "Original Sound"),
+        
+        # Metadata
         "fetched_at": datetime.now(),  # Timestamp pengambilan data
     }
 

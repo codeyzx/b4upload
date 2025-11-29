@@ -96,7 +96,10 @@ export function sanitizeMongoDoc(
     _id: doc._id || "",
     video_id: doc.video_id || doc._id || "",
     author_username: doc.author_username || "Unknown",
+    author_nickname: doc.author_nickname || "",
     author_id: doc.author_id || "",
+    author_followers: typeof doc.author_followers === "number" ? doc.author_followers : 0,
+    author_verified: typeof doc.author_verified === "boolean" ? doc.author_verified : false,
     description: doc.description || "",
     hashtags: Array.isArray(doc.hashtags) ? doc.hashtags : [],
     hashtags_count:
@@ -111,6 +114,7 @@ export function sanitizeMongoDoc(
       digg_count: doc.stats?.digg_count || 0,
       comment_count: doc.stats?.comment_count || 0,
       share_count: doc.stats?.share_count || 0,
+      collect_count: doc.stats?.collect_count || 0,
     },
     video_duration: typeof doc.video_duration === "number" ? doc.video_duration : 0,
     music_title: doc.music_title || "Original Sound",

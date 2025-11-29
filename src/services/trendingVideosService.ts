@@ -10,15 +10,27 @@ import {
 // Constants
 const MAX_RETRIES = 3;
 const INITIAL_DELAY = 1000; // 1 second
-const DEFAULT_THUMBNAIL =
-  "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=300&fit=crop";
-const DEFAULT_AVATAR =
-  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop";
 
 // Get page size from environment or use default
 export const PAGE_SIZE = Number(
   import.meta.env.VITE_TRENDING_VIDEOS_PAGE_SIZE
 ) || 10;
+
+/**
+ * Generate TikTok video URL
+ * Format: https://www.tiktok.com/@username/video/videoId
+ */
+export function generateTikTokUrl(username: string, videoId: string): string {
+  return `https://www.tiktok.com/@${username}/video/${videoId}`;
+}
+
+/**
+ * Generate TikTok profile URL
+ * Format: https://www.tiktok.com/@username
+ */
+export function generateTikTokProfileUrl(username: string): string {
+  return `https://www.tiktok.com/@${username}`;
+}
 
 /**
  * Format number with K/M suffixes
@@ -142,6 +154,7 @@ function getCountryFlag(): string {
 
 /**
  * Transform MongoDB document to TrendingVideo frontend type
+ * Uses new schema with author, video, and stats fields
  */
 export function transformMongoDocToTrendingVideo(
   doc: MongoTrendingVideoDoc
@@ -151,22 +164,27 @@ export function transformMongoDocToTrendingVideo(
     digg_count: 0,
     comment_count: 0,
     share_count: 0,
+    collect_count: 0,
   };
 
   const views = stats.play_count || 0;
   const likes = stats.digg_count || 0;
+  
+  const username = doc.author_username || "unknown";
+  const videoId = doc.video_id || doc._id;
 
   return {
     id: doc._id || doc.video_id,
-    thumbnail: DEFAULT_THUMBNAIL,
     title: doc.description || "Untitled Video",
     duration: formatDuration(doc.video_duration || 0),
-    creatorName: doc.author_username || "Unknown Creator",
-    creatorAvatar: DEFAULT_AVATAR,
-    creatorUsername: `@${doc.author_username || "unknown"}`,
+    creatorName: doc.author_nickname || doc.author_username || "Unknown Creator",
+    creatorUsername: username,
+    creatorVerified: doc.author_verified || false,
+    tiktokUrl: generateTikTokUrl(username, videoId),
+    tiktokProfileUrl: generateTikTokProfileUrl(username),
     country: getCountryFlag(),
     category: deriveCategory(doc.hashtags || []),
-    followerCount: 0, // Not available in current data
+    followerCount: doc.author_followers || 0,
     publicationTime: formatTimestamp(doc.create_time || Date.now()),
     views: formatNumber(views),
     likes: formatNumber(likes),

@@ -1,7 +1,6 @@
 import React from "react";
-import { Eye, Heart, Loader2 } from "lucide-react";
+import { Eye, Heart, Loader2, BadgeCheck, Play } from "lucide-react";
 import { TrendingVideo } from "../types";
-import { Avatar } from "./ui/Avatar";
 import { Badge } from "./ui/Badge";
 import { Button } from "./ui/Button";
 
@@ -68,25 +67,59 @@ export const TrendingTable: React.FC<TrendingTableProps> = ({
                   {/* Thumbnail & Title */}
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
-                      <div className="relative flex-shrink-0">
-                        <img
-                          src={video.thumbnail}
-                          alt={video.title}
-                          className="w-28 h-20 object-cover rounded-lg"
-                        />
-                        <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/80 text-white text-xs rounded">
-                          {video.duration}
-                        </div>
+                      <div className="relative flex-shrink-0 group cursor-pointer">
+                        <a
+                          href={video.tiktokUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden hover:opacity-80 transition-opacity relative"
+                        >
+                          {/* Loading placeholder - will be covered by iframe when loaded */}
+                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-700 dark:to-gray-800">
+                            <svg
+                              className="w-8 h-8 text-gray-600 dark:text-gray-500"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+                            </svg>
+                          </div>
+                          {/* TikTok iframe embed */}
+                          <div className="relative w-full h-full overflow-hidden">
+                            <iframe
+                              src={`https://www.tiktok.com/embed/v2/${video.tiktokUrl.split('/video/')[1]}`}
+                              width="100%"
+                              height="200%"
+                              allow="autoplay"
+                              loading="lazy"
+                              className="w-full relative z-10"
+                              style={{ 
+                                pointerEvents: "none", 
+                                border: "none",
+                                overflow: "hidden",
+                                marginTop: "-50px",
+                                backgroundColor: "transparent"
+                              }}
+                              scrolling="no"
+                            />
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors pointer-events-none z-20">
+                            <Play size={20} className="text-white fill-white" />
+                          </div>
+                          <div className="absolute bottom-1 right-1 px-1 py-0.5 bg-black/80 text-white text-xs rounded z-20">
+                            {video.duration}
+                          </div>
+                        </a>
                       </div>
-                      <div className="min-w-0 flex-1 max-w-md">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white line-clamp-3 leading-relaxed">
+                      <div className="min-w-0 flex-1">
+                        <a
+                          href={video.tiktokUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium text-gray-900 dark:text-white line-clamp-2 leading-relaxed hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                        >
                           {video.title}
-                        </p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="default" size="sm">
-                            {video.category}
-                          </Badge>
-                        </div>
+                        </a>
                       </div>
                     </div>
                   </td>
@@ -94,18 +127,46 @@ export const TrendingTable: React.FC<TrendingTableProps> = ({
                   {/* Creator Info */}
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
-                      <Avatar
-                        src={video.creatorAvatar}
-                        alt={video.creatorName}
-                        size="md"
-                      />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                          {video.creatorName}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                          {video.creatorUsername}
-                        </p>
+                        <div className="flex items-center space-x-1">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                            {video.creatorName}
+                          </p>
+                          {video.creatorVerified && (
+                            <div className="relative flex-shrink-0 w-4 h-4 flex items-center justify-center">
+                              <BadgeCheck 
+                                size={16} 
+                                className="text-blue-500 dark:text-blue-400" 
+                                fill="currentColor"
+                                strokeWidth={0}
+                              />
+                              <svg
+                                className="absolute w-2.5 h-2.5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="white"
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                        <a
+                          href={video.tiktokProfileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 truncate block"
+                        >
+                          @{video.creatorUsername}
+                        </a>
+                        {video.followerCount > 0 && (
+                          <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                            {video.followerCount.toLocaleString()} followers
+                          </p>
+                        )}
                       </div>
                     </div>
                   </td>
