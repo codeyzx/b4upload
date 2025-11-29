@@ -45,7 +45,7 @@ export const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-[#0B1120] dark:to-[#0F172A] pt-20 pb-32">
+      <section className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-[#0B1120] dark:to-[#0F172A] pt-20 pb-20">
         {/* Background Grid Pattern */}
         <div className="absolute inset-0 bg-grid-pattern opacity-30" />
 
@@ -90,34 +90,6 @@ export const LandingPage: React.FC = () => {
             <Button variant="outline" size="lg" className="w-full sm:w-auto">
               Learn More
             </Button>
-          </div>
-
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-8 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400">
-            <div>
-              <p className="text-3xl md:text-4xl font-bold text-violet-600 dark:text-violet-400">
-                95%
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Accuracy Rate
-              </p>
-            </div>
-            <div>
-              <p className="text-3xl md:text-4xl font-bold text-fuchsia-600 dark:text-fuchsia-400">
-                50K+
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Predictions Made
-              </p>
-            </div>
-            <div>
-              <p className="text-3xl md:text-4xl font-bold text-emerald-600 dark:text-emerald-400">
-                10K+
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Active Users
-              </p>
-            </div>
           </div>
         </div>
       </section>

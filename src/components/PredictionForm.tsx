@@ -87,7 +87,10 @@ export const PredictionForm: React.FC<PredictionFormProps> = ({
               <div className="flex justify-between items-center">
                 <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   <Clock size={16} className="text-violet-600" />
-                  <span>Video Duration</span>
+                  <span>
+                    Video Duration
+                    <span className="text-red-500 ml-1">*</span>
+                  </span>
                 </label>
                 <div className="px-3 py-1.5 bg-violet-100 dark:bg-violet-900/30 border border-violet-200 dark:border-violet-800 rounded-lg">
                   <span className="text-sm font-bold text-violet-700 dark:text-violet-400">
@@ -128,7 +131,10 @@ export const PredictionForm: React.FC<PredictionFormProps> = ({
               <div className="flex justify-between items-center">
                 <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   <Hash size={16} className="text-violet-600" />
-                  <span>Caption & Hashtags</span>
+                  <span>
+                    Caption & Hashtags
+                    <span className="text-red-500 ml-1">*</span>
+                  </span>
                 </label>
                 <div className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
                   <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
@@ -190,7 +196,10 @@ export const PredictionForm: React.FC<PredictionFormProps> = ({
             <div className="space-y-3">
               <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 <Calendar size={16} className="text-violet-600" />
-                <span>Schedule Time</span>
+                <span>
+                  Schedule Time
+                  <span className="text-red-500 ml-1">*</span>
+                </span>
               </label>
 
               <div className="relative">
