@@ -38,16 +38,27 @@ export interface ProbabilityDistribution {
   high: number;
 }
 
+/**
+ * Prediction result from ML model
+ * Contains both new format (primary) and legacy format (backward compatibility)
+ */
 export interface PredictionResult {
+  // Primary format (new)
   engagementStatus: EngagementStatus;
-  confidenceScore: number;
+  confidenceScore: number; // 0-100 percentage
   probabilityDistribution: ProbabilityDistribution;
   suggestions: string[];
   modelInsight: string;
-  prediction?: string; // For backward compatibility
-  confidence_score?: number; // For backward compatibility
-  probabilities?: Array<{ label: string; score: number }>; // For backward compatibility
-  shap_insight?: string; // For backward compatibility
+
+  // Legacy format (backward compatibility with old API)
+  /** @deprecated Use engagementStatus instead */
+  prediction?: string;
+  /** @deprecated Use confidenceScore instead */
+  confidence_score?: number;
+  /** @deprecated Use probabilityDistribution instead */
+  probabilities?: Array<{ label: string; score: number }>;
+  /** @deprecated Use modelInsight instead */
+  shap_insight?: string;
 }
 
 export interface PredictionState {
