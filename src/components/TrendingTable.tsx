@@ -19,7 +19,14 @@ export const TrendingTable: React.FC<TrendingTableProps> = ({
   hasMore,
   isLoading = false,
 }) => {
-  const visibleVideos = videos.slice(0, visibleCount);
+  // Sort videos by engagement rate (highest first)
+  const sortedVideos = [...videos].sort((a, b) => {
+    const rateA = parseFloat(a.engagementRate.replace("%", ""));
+    const rateB = parseFloat(b.engagementRate.replace("%", ""));
+    return rateB - rateA; // Descending order
+  });
+
+  const visibleVideos = sortedVideos.slice(0, visibleCount);
 
   return (
     <div className="w-full">
@@ -87,18 +94,20 @@ export const TrendingTable: React.FC<TrendingTableProps> = ({
                           {/* TikTok iframe embed */}
                           <div className="relative w-full h-full overflow-hidden">
                             <iframe
-                              src={`https://www.tiktok.com/embed/v2/${video.tiktokUrl.split('/video/')[1]}`}
+                              src={`https://www.tiktok.com/embed/v2/${
+                                video.tiktokUrl.split("/video/")[1]
+                              }`}
                               width="100%"
                               height="200%"
                               allow="autoplay"
                               loading="lazy"
                               className="w-full relative z-10"
-                              style={{ 
-                                pointerEvents: "none", 
+                              style={{
+                                pointerEvents: "none",
                                 border: "none",
                                 overflow: "hidden",
                                 marginTop: "-50px",
-                                backgroundColor: "transparent"
+                                backgroundColor: "transparent",
                               }}
                               scrolling="no"
                             />
@@ -134,9 +143,9 @@ export const TrendingTable: React.FC<TrendingTableProps> = ({
                           </p>
                           {video.creatorVerified && (
                             <div className="relative flex-shrink-0 w-4 h-4 flex items-center justify-center">
-                              <BadgeCheck 
-                                size={16} 
-                                className="text-blue-500 dark:text-blue-400" 
+                              <BadgeCheck
+                                size={16}
+                                className="text-blue-500 dark:text-blue-400"
                                 fill="currentColor"
                                 strokeWidth={0}
                               />
@@ -222,8 +231,8 @@ export const TrendingTable: React.FC<TrendingTableProps> = ({
         {/* Load More Button */}
         {hasMore && (
           <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-center">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={onLoadMore}
               disabled={isLoading}
               className="min-w-[200px]"

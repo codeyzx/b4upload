@@ -77,8 +77,6 @@ export interface TrendingVideo {
   creatorVerified: boolean;
   tiktokUrl: string;
   tiktokProfileUrl: string;
-  country: string;
-  category: string;
   followerCount: number;
   publicationTime: string;
   views: string;
