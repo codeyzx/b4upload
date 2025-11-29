@@ -23,3 +23,30 @@ export interface ApiErrorResponse {
   message?: string;
   details?: unknown;
 }
+
+// Trending Videos API Types
+export interface TrendingVideosApiResponse {
+  videos: Array<{
+    _id: string;
+    video_id: string;
+    author_username: string;
+    author_id: string;
+    description: string;
+    hashtags: string[];
+    hashtags_count: number;
+    create_time: number;
+    stats: {
+      play_count: number;
+      digg_count: number;
+      comment_count: number;
+      share_count: number;
+    };
+    video_duration: number;
+    music_title: string;
+    fetched_at: string;
+  }>;
+  total: number;
+  limit: number;
+  skip: number;
+  hasMore: boolean;
+}

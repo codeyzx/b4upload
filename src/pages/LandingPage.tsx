@@ -1,21 +1,45 @@
-import React, { useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Zap, TrendingUp } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { TrendingTable } from "../components/TrendingTable";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
-import { MOCK_TRENDING_VIDEOS } from "../data/mockData";
+import { useTrendingVideos } from "../hooks/useTrendingVideos";
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [visibleCount, setVisibleCount] = useState(5);
+  const scrollPositionRef = useRef(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const {
+    videos,
+    isLoading,
+    error,
+    hasMore,
+    totalCount,
+    loadMore,
+    retry,
+  } = useTrendingVideos();
+
+  // Save scroll position before updates
+  useEffect(() => {
+    const handleScroll = () => {
+      scrollPositionRef.current = window.scrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handlePredictClick = () => {
     navigate("/predict");
   };
 
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => Math.min(prev + 5, MOCK_TRENDING_VIDEOS.length));
+  const handleLoadMore = async () => {
+    const currentScroll = window.scrollY;
+    await loadMore();
+    // Restore scroll position after load
+    window.scrollTo(0, currentScroll);
   };
 
   return (
@@ -99,7 +123,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Trending Videos Section */}
-      <section className="py-20 bg-white dark:bg-[#0F172A]">
+      <section ref={sectionRef} className="py-20 bg-white dark:bg-[#0F172A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
           <div className="flex items-center justify-between mb-8">
@@ -112,17 +136,95 @@ export const LandingPage: React.FC = () => {
               </div>
               <p className="text-gray-600 dark:text-gray-400">
                 Real-time analysis of top-performing content
+                {totalCount > 0 && (
+                  <span className="ml-2 text-violet-600 dark:text-violet-400 font-medium">
+                    ({totalCount} videos)
+                  </span>
+                )}
               </p>
             </div>
           </div>
 
+          {/* Loading State */}
+          {isLoading && videos.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Loader2 className="w-12 h-12 text-violet-600 animate-spin mb-4" />
+              <p className="text-gray-600 dark:text-gray-400 text-lg">
+                Loading trending videos...
+              </p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && videos.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-2xl p-8 max-w-md">
+                <AlertCircle className="w-12 h-12 text-red-600 dark:text-red-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-red-900 dark:text-red-100 text-center mb-2">
+                  Failed to Load Videos
+                </h3>
+                <p className="text-red-700 dark:text-red-300 text-center mb-6">
+                  {error}
+                </p>
+                <Button
+                  variant="primary"
+                  onClick={retry}
+                  className="w-full"
+                >
+                  <RefreshCw size={16} className="mr-2" />
+                  Retry
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && !error && videos.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl p-8 max-w-md">
+                <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center mb-2">
+                  No Trending Videos
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-center">
+                  No trending videos are available at the moment. Check back later!
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Trending Table */}
-          <TrendingTable
-            videos={MOCK_TRENDING_VIDEOS}
-            visibleCount={visibleCount}
-            onLoadMore={handleLoadMore}
-            hasMore={visibleCount < MOCK_TRENDING_VIDEOS.length}
-          />
+          {videos.length > 0 && (
+            <TrendingTable
+              videos={videos}
+              visibleCount={videos.length}
+              onLoadMore={handleLoadMore}
+              hasMore={hasMore}
+              isLoading={isLoading}
+            />
+          )}
+
+          {/* Load More Error */}
+          {error && videos.length > 0 && (
+            <div className="mt-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  <p className="text-red-700 dark:text-red-300 text-sm">
+                    {error}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={retry}
+                >
+                  <RefreshCw size={14} className="mr-1" />
+                  Retry
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>

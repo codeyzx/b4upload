@@ -69,7 +69,7 @@ export interface PredictionState {
 
 // Trending Videos Types
 export interface TrendingVideo {
-  id: number;
+  id: number | string;
   thumbnail: string;
   title: string;
   duration: string;
@@ -90,6 +90,29 @@ export interface TrendingVideosState {
   visibleCount: number;
   isLoading: boolean;
   hasMore: boolean;
+  error: string | null;
+  totalCount: number;
+}
+
+// MongoDB Document Types
+export interface MongoTrendingVideoDoc {
+  _id: string;
+  video_id: string;
+  author_username: string;
+  author_id: string;
+  description: string;
+  hashtags: string[];
+  hashtags_count: number;
+  create_time: number;
+  stats: {
+    play_count: number;
+    digg_count: number;
+    comment_count: number;
+    share_count: number;
+  };
+  video_duration: number;
+  music_title: string;
+  fetched_at: string | Date;
 }
 
 // API Response Types

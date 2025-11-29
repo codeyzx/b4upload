@@ -15,10 +15,22 @@ app = func.FunctionApp()
 def get_database():
     try:
         connection_string = os.environ.get("MONGODB_CONNECTION_STRING")
+        if not connection_string:
+            logging.error("MONGODB_CONNECTION_STRING environment variable not set")
+            raise ValueError("MongoDB connection string not configured")
+        
+        # Log connection attempt without exposing credentials
+        logging.info("Attempting MongoDB connection...")
         client = MongoClient(connection_string)
+        logging.info("MongoDB connection successful")
         return client["b4upload_db"]
     except Exception as e:
-        logging.error(f"Gagal konek ke MongoDB: {e}")
+        # Log error without exposing connection string or credentials
+        error_msg = str(e)
+        # Remove any potential connection string from error message
+        if "mongodb" in error_msg.lower():
+            error_msg = "MongoDB connection failed - check connection string format"
+        logging.error(f"Failed to connect to MongoDB: {error_msg}")
         raise e
 
 
@@ -55,6 +67,159 @@ def fetch_trending_tiktok():
 
 
 # --- 3. FUNGSI CLEANING & FORMATTING ---
+def calculate_engagement_rate(stats):
+    """
+    Calculate engagement rate as (likes / views) * 100
+    Returns formatted percentage string
+    """
+    try:
+        play_count = stats.get("play_count", 0)
+        digg_count = stats.get("digg_count", 0)
+        
+        if play_count == 0:
+            return "0.00%"
+        
+        rate = (digg_count / play_count) * 100
+        return f"{rate:.2f}%"
+    except Exception as e:
+        logging.warning(f"Error calculating engagement rate: {e}")
+        return "0.00%"
+
+
+def format_timestamp(timestamp):
+    """
+    Format timestamp to readable date-time string
+    Input: Unix timestamp (seconds) or datetime object
+    Output: "YYYY-MM-DD HH:MM:SS" format
+    """
+    try:
+        if isinstance(timestamp, (int, float)):
+            dt = datetime.fromtimestamp(timestamp)
+        elif isinstance(timestamp, datetime):
+            dt = timestamp
+        else:
+            return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    except Exception as e:
+        logging.warning(f"Error formatting timestamp: {e}")
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def extract_hashtags(description):
+    """
+    Extract hashtags from description
+    Returns list of hashtags without # symbol
+    """
+    try:
+        if not description:
+            return []
+        
+        hashtags = [tag.strip("#") for tag in description.split() if tag.startswith("#")]
+        return hashtags
+    except Exception as e:
+        logging.warning(f"Error extracting hashtags: {e}")
+        return []
+
+
+def format_number(num):
+    """
+    Format number with K/M suffixes
+    """
+    try:
+        if num >= 1000000:
+            return f"{num / 1000000:.2f}M"
+        elif num >= 1000:
+            return f"{num / 1000:.1f}K"
+        else:
+            return str(num)
+    except Exception as e:
+        logging.warning(f"Error formatting number: {e}")
+        return "0"
+
+
+def transform_mongo_doc(doc):
+    """
+    Transform MongoDB document to frontend-friendly format
+    Handles missing fields gracefully with defaults
+    """
+    doc_id = doc.get("_id", "unknown")
+    try:
+        # Extract stats
+        stats = doc.get("stats", {})
+        play_count = stats.get("play_count", 0)
+        digg_count = stats.get("digg_count", 0)
+        
+        # Calculate engagement rate
+        engagement_rate = calculate_engagement_rate(stats)
+        
+        # Format timestamp
+        create_time = doc.get("create_time", 0)
+        publication_time = format_timestamp(create_time)
+        
+        # Format duration
+        video_duration = doc.get("video_duration", 0)
+        duration_str = f"{video_duration}s"
+        
+        # Get music title with default
+        music_title = doc.get("music_title") or "Original Sound"
+        
+        transformed = {
+            "_id": str(doc.get("_id", "")),
+            "video_id": doc.get("video_id", ""),
+            "author_username": doc.get("author_username", "Unknown"),
+            "author_id": doc.get("author_id", ""),
+            "description": doc.get("description", ""),
+            "hashtags": doc.get("hashtags", []),
+            "hashtags_count": doc.get("hashtags_count", 0),
+            "create_time": create_time,
+            "stats": {
+                "play_count": play_count,
+                "digg_count": digg_count,
+                "comment_count": stats.get("comment_count", 0),
+                "share_count": stats.get("share_count", 0),
+            },
+            "video_duration": video_duration,
+            "music_title": music_title,
+            "fetched_at": doc.get("fetched_at", datetime.now()).isoformat() if hasattr(doc.get("fetched_at"), "isoformat") else str(doc.get("fetched_at", "")),
+            # Additional formatted fields for frontend
+            "formatted_views": format_number(play_count),
+            "formatted_likes": format_number(digg_count),
+            "engagement_rate": engagement_rate,
+            "publication_time": publication_time,
+            "duration": duration_str,
+        }
+        
+        return transformed
+    except Exception as e:
+        logging.error(f"Error transforming document {doc_id}: {str(e)[:200]}")
+        # Return minimal valid document
+        return {
+            "_id": str(doc.get("_id", "")),
+            "video_id": doc.get("video_id", ""),
+            "author_username": "Unknown",
+            "author_id": "",
+            "description": "",
+            "hashtags": [],
+            "hashtags_count": 0,
+            "create_time": 0,
+            "stats": {
+                "play_count": 0,
+                "digg_count": 0,
+                "comment_count": 0,
+                "share_count": 0,
+            },
+            "video_duration": 0,
+            "music_title": "Original Sound",
+            "fetched_at": datetime.now().isoformat(),
+            "formatted_views": "0",
+            "formatted_likes": "0",
+            "engagement_rate": "0.00%",
+            "publication_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "duration": "0s",
+        }
+
+
 def process_video_data(raw_item):
     """
     Mengubah raw data dari API menjadi format yang siap untuk Database & AI.
@@ -277,6 +442,152 @@ def predict_engagement(req: func.HttpRequest) -> func.HttpResponse:
             logging.error(f"Prediction error: {e}")
             return func.HttpResponse(
                 json.dumps({"error": f"Prediction failed: {str(e)}"}),
+                status_code=500,
+                mimetype="application/json",
+            )
+
+    except Exception as e:
+        logging.error(f"General API error: {e}")
+        return func.HttpResponse(
+            json.dumps({"error": "Internal server error"}),
+            status_code=500,
+            mimetype="application/json",
+        )
+
+
+# --- 6. API ENDPOINT UNTUK TRENDING VIDEOS ---
+@app.route(route="trending", auth_level=func.AuthLevel.ANONYMOUS, methods=["GET"])
+def get_trending_videos(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    API endpoint untuk mengambil trending videos dari MongoDB
+    Query Parameters:
+    - limit (optional, default: 10): Number of videos to return
+    - skip (optional, default: 0): Number of videos to skip for pagination
+    Output: JSON dengan videos, total, limit, skip, hasMore
+    """
+    logging.info("🚀 Get trending videos API called")
+
+    try:
+        # Get default page size from environment or use 10
+        default_page_size = int(os.environ.get("TRENDING_VIDEOS_PAGE_SIZE", "10"))
+        
+        # Parse query parameters
+        try:
+            limit = int(req.params.get("limit", str(default_page_size)))
+            skip = int(req.params.get("skip", "0"))
+        except ValueError:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid limit or skip parameter. Must be integers."}),
+                status_code=400,
+                mimetype="application/json",
+            )
+
+        # Validate parameters
+        if limit < 1 or limit > 100:
+            return func.HttpResponse(
+                json.dumps({"error": "Limit must be between 1 and 100"}),
+                status_code=400,
+                mimetype="application/json",
+            )
+
+        if skip < 0:
+            return func.HttpResponse(
+                json.dumps({"error": "Skip must be non-negative"}),
+                status_code=400,
+                mimetype="application/json",
+            )
+
+        # Connect to MongoDB
+        try:
+            db = get_database()
+            collection = db["historical_data"]
+        except Exception as e:
+            # Log error without exposing connection string
+            logging.error(f"Database connection error (trending endpoint): {str(e)[:100]}")
+            return func.HttpResponse(
+                json.dumps({
+                    "error": "Database connection failed",
+                    "code": "DB_CONNECTION_ERROR"
+                }),
+                status_code=500,
+                mimetype="application/json",
+            )
+
+        # Query with sorting and pagination
+        try:
+            # Get total count
+            total = collection.count_documents({})
+
+            # Query all videos to calculate engagement rate and sort
+            # Note: For better performance with large datasets, consider pre-calculating engagement rate
+            all_videos = list(collection.find({}))
+            
+            # Calculate engagement rate for each video and sort
+            videos_with_engagement = []
+            for video in all_videos:
+                stats = video.get("stats", {})
+                play_count = stats.get("play_count", 0)
+                digg_count = stats.get("digg_count", 0)
+                
+                # Calculate engagement rate
+                if play_count > 0:
+                    engagement_rate = (digg_count / play_count) * 100
+                else:
+                    engagement_rate = 0
+                
+                video["_calculated_engagement_rate"] = engagement_rate
+                videos_with_engagement.append(video)
+            
+            # Sort by engagement rate descending
+            videos_with_engagement.sort(key=lambda x: x["_calculated_engagement_rate"], reverse=True)
+            
+            # Apply pagination
+            raw_videos = videos_with_engagement[skip:skip + limit]
+
+            # Transform documents with error resilience
+            videos = []
+            failed_count = 0
+            for video in raw_videos:
+                try:
+                    transformed = transform_mongo_doc(video)
+                    videos.append(transformed)
+                except Exception as e:
+                    failed_count += 1
+                    logging.warning(f"Failed to transform video {video.get('_id', 'unknown')}: {str(e)[:100]}")
+                    # Continue processing other videos
+
+            if failed_count > 0:
+                logging.warning(f"Failed to transform {failed_count} out of {len(raw_videos)} documents")
+
+            # Calculate hasMore
+            hasMore = (skip + len(videos)) < total
+            
+            logging.info(f"Trending videos fetched: {len(videos)} videos (skip={skip}, limit={limit}, total={total})")
+
+            # Response JSON
+            response_data = {
+                "videos": videos,
+                "total": total,
+                "limit": limit,
+                "skip": skip,
+                "hasMore": hasMore,
+            }
+
+            logging.info(
+                f"✅ Trending videos fetched: {len(videos)} videos (skip={skip}, limit={limit}, total={total})"
+            )
+
+            return func.HttpResponse(
+                json.dumps(response_data), status_code=200, mimetype="application/json"
+            )
+
+        except Exception as e:
+            logging.error(f"Database query error: {e}")
+            return func.HttpResponse(
+                json.dumps({
+                    "error": "Database query failed",
+                    "code": "DB_QUERY_ERROR"
+                }),
                 status_code=500,
                 mimetype="application/json",
             )
