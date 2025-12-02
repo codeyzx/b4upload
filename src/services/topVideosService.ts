@@ -1,19 +1,15 @@
 import { TrendingVideo, MongoTrendingVideoDoc } from "../types";
-import { TrendingVideosApiResponse } from "../types/api";
 import { apiClient } from "../config/api";
 import { handleApiError } from "../utils/errorHandler";
-import {
-  validateTrendingVideosResponse,
-  sanitizeTrendingVideosResponse,
-} from "../utils/trendingVideosValidator";
 
-// Constants
-const MAX_RETRIES = 3;
-const INITIAL_DELAY = 1000; // 1 second
-
-// Get page size from environment or use default
-export const PAGE_SIZE =
-  Number(import.meta.env.VITE_TRENDING_VIDEOS_PAGE_SIZE) || 10;
+/**
+ * API Response type for top videos endpoint
+ */
+interface TopVideosApiResponse {
+  videos: MongoTrendingVideoDoc[];
+  count: number;
+  last_updated: string;
+}
 
 /**
  * Generate TikTok video URL
@@ -57,18 +53,6 @@ export function calculateEngagementRate(
   }
   const rate = ((likes + comments + shares) / views) * 100;
   return `${rate.toFixed(2)}%`;
-}
-
-/**
- * Extract hashtags from description
- * Matches words starting with # symbol
- */
-export function extractHashtags(description: string): string[] {
-  if (!description) {
-    return [];
-  }
-  const hashtags = description.match(/#\w+/g);
-  return hashtags ? hashtags.map((tag) => tag.substring(1)) : [];
 }
 
 /**
@@ -120,7 +104,7 @@ export function formatTimestamp(timestamp: number | string | Date): string {
 
 /**
  * Transform MongoDB document to TrendingVideo frontend type
- * Uses new schema with author, video, and stats fields
+ * Reuses transformation logic from trendingVideosService
  */
 export function transformMongoDocToTrendingVideo(
   doc: MongoTrendingVideoDoc
@@ -160,83 +144,29 @@ export function transformMongoDocToTrendingVideo(
 }
 
 /**
- * Check if error is retryable (network or 5xx errors)
+ * Fetch top 10 videos from API
+ * No pagination - returns all top videos (max 10)
  */
-function isRetryableError(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
-
-  const err = error as { response?: { status?: number } };
-  return !err.response || (err.response.status ?? 0) >= 500;
-}
-
-/**
- * Make API request with retry logic
- */
-async function makeRequestWithRetry<T>(
-  request: () => Promise<T>,
-  retries = MAX_RETRIES
-): Promise<T> {
-  try {
-    return await request();
-  } catch (error) {
-    if (retries === 0 || !isRetryableError(error)) {
-      throw error;
-    }
-
-    const delay = INITIAL_DELAY * Math.pow(2, MAX_RETRIES - retries);
-    await new Promise((resolve) => setTimeout(resolve, delay));
-    return makeRequestWithRetry(request, retries - 1);
-  }
-}
-
-/**
- * Fetch trending videos from API with pagination
- */
-export async function fetchTrendingVideos(
-  limit: number = 10,
-  skip: number = 0
-): Promise<{
+export async function fetchTopVideos(): Promise<{
   videos: TrendingVideo[];
-  total: number;
-  hasMore: boolean;
+  lastUpdated: string;
 }> {
   try {
-    // Make API call with retry logic
-    const response = await makeRequestWithRetry(() =>
-      apiClient.get<TrendingVideosApiResponse>("/trending", {
-        params: { limit, skip },
-      })
-    );
-
-    // Validate response structure
-    let validatedResponse: TrendingVideosApiResponse;
-    if (validateTrendingVideosResponse(response.data)) {
-      validatedResponse = response.data;
-    } else {
-      console.warn("[TrendingVideos] Invalid response format, sanitizing...");
-      validatedResponse = sanitizeTrendingVideosResponse(response.data);
-    }
+    // Make API call to top-videos endpoint
+    const response = await apiClient.get<TopVideosApiResponse>("/top-videos");
 
     // Transform MongoDB documents to frontend format
-    const videos = validatedResponse.videos.map((doc) =>
+    const videos = response.data.videos.map((doc) =>
       transformMongoDocToTrendingVideo(doc)
     );
 
-    // Sort videos by engagement rate (highest first)
-    const sortedVideos = videos.sort((a, b) => {
-      const rateA = parseFloat(a.engagementRate.replace("%", ""));
-      const rateB = parseFloat(b.engagementRate.replace("%", ""));
-      return rateB - rateA; // Descending order (highest first)
-    });
-
     return {
-      videos: sortedVideos,
-      total: validatedResponse.total,
-      hasMore: validatedResponse.hasMore,
+      videos,
+      lastUpdated: response.data.last_updated,
     };
   } catch (error) {
-    const trendingError = handleApiError(error);
-    console.error("[TrendingVideos] Failed to fetch videos:", trendingError);
-    throw trendingError;
+    const topVideosError = handleApiError(error);
+    console.error("[TopVideos] Failed to fetch videos:", topVideosError);
+    throw topVideosError;
   }
 }

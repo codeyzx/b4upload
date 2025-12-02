@@ -313,7 +313,118 @@ def process_video_data(raw_item):
     return clean_doc
 
 
-# --- 4. SCHEDULER (PENGGANTI SETINTERVAL) ---
+# --- 4. UPDATE TOP VIDEOS FUNCTION ---
+def update_top_videos():
+    """
+    Calculate engagement rates for all videos in historical_data,
+    select top 10, and update top_videos collection.
+    
+    This function:
+    1. Queries all videos from historical_data
+    2. Calculates engagement rate for each video
+    3. Sorts by engagement rate descending
+    4. Selects top 10 videos
+    5. Clears top_videos collection
+    6. Inserts top 10 with engagement_rate and last_updated fields
+    """
+    try:
+        logging.info("🔄 Starting top_videos update process...")
+        
+        # Connect to database
+        db = get_database()
+        historical_collection = db["historical_data"]
+        top_videos_collection = db["top_videos"]
+        
+        # Query all videos from historical_data
+        all_videos = list(historical_collection.find({}))
+        logging.info(f"📊 Found {len(all_videos)} videos in historical_data")
+        
+        if not all_videos:
+            logging.warning("⚠️  No videos found in historical_data, skipping update")
+            return
+        
+        # Calculate engagement rate for each video
+        videos_with_engagement = []
+        skipped_count = 0
+        
+        for video in all_videos:
+            try:
+                stats = video.get("stats", {})
+                
+                # Validate stats
+                if not stats or not isinstance(stats, dict):
+                    logging.warning(f"Skipping video {video.get('_id', 'unknown')}: invalid stats")
+                    skipped_count += 1
+                    continue
+                
+                play_count = stats.get("play_count", 0)
+                digg_count = stats.get("digg_count", 0)
+                
+                # Handle division by zero
+                if play_count == 0:
+                    engagement_rate = 0.0
+                else:
+                    engagement_rate = (digg_count / play_count) * 100
+                
+                # Add engagement rate to video document
+                video["engagement_rate"] = engagement_rate
+                videos_with_engagement.append(video)
+                
+            except Exception as e:
+                logging.warning(f"Error processing video {video.get('_id', 'unknown')}: {str(e)[:100]}")
+                skipped_count += 1
+                continue
+        
+        if skipped_count > 0:
+            logging.info(f"⚠️  Skipped {skipped_count} videos due to invalid data")
+        
+        if not videos_with_engagement:
+            logging.error("❌ No valid videos to process, aborting update")
+            return
+        
+        # Sort by engagement rate descending
+        videos_with_engagement.sort(key=lambda x: x["engagement_rate"], reverse=True)
+        
+        # Select top 10 videos
+        top_10 = videos_with_engagement[:10]
+        logging.info(f"✅ Selected top {len(top_10)} videos")
+        
+        # Add last_updated timestamp to each video
+        current_time = datetime.now()
+        for video in top_10:
+            video["last_updated"] = current_time
+        
+        # Clear top_videos collection
+        try:
+            delete_result = top_videos_collection.delete_many({})
+            logging.info(f"🗑️  Cleared {delete_result.deleted_count} old documents from top_videos")
+        except Exception as e:
+            logging.error(f"❌ Failed to clear top_videos collection: {e}")
+            logging.error("Aborting update to preserve existing data")
+            return
+        
+        # Insert new top 10 videos
+        try:
+            insert_result = top_videos_collection.insert_many(top_10)
+            logging.info(f"✅ Inserted {len(insert_result.inserted_ids)} videos into top_videos")
+            logging.info(f"📅 Update completed at {current_time.isoformat()}")
+            
+            # Log top 3 videos for verification
+            for i, video in enumerate(top_10[:3], 1):
+                logging.info(f"  #{i}: {video.get('description', 'No description')[:50]}... (engagement: {video['engagement_rate']:.2f}%)")
+            
+        except Exception as e:
+            logging.error(f"❌ Failed to insert top videos: {e}")
+            # Attempt to rollback by keeping collection empty is acceptable
+            # since we already cleared it
+            raise
+        
+    except Exception as e:
+        logging.error(f"❌ Top videos update failed: {str(e)[:200]}")
+        raise
+
+
+# --- 5. SCHEDULER (PENGGANTI SETINTERVAL) ---
 # Ganti "0 0 0 * * *" jika ingin interval lain.
 # Contoh tiap 10 menit: "0 */10 * * * *"
 @app.schedule(
@@ -358,6 +469,15 @@ def daily_fetch_tiktok(myTimer: func.TimerRequest) -> None:
     logging.info(
         f"✅ Selesai! {success_count} data berhasil disimpan/diupdate di MongoDB."
     )
+    
+    # D. Update top_videos collection
+    try:
+        logging.info("🔄 Triggering top_videos update...")
+        update_top_videos()
+        logging.info("✅ Top videos update completed successfully")
+    except Exception as e:
+        logging.error(f"❌ Top videos update failed: {e}")
+        logging.error("Continuing with existing top_videos data")
 
 
 # --- 5. API ENDPOINT UNTUK PREDIKSI ENGAGEMENT ---
@@ -501,55 +621,24 @@ def predict_engagement(req: func.HttpRequest) -> func.HttpResponse:
         )
 
 
-# --- 6. API ENDPOINT UNTUK TRENDING VIDEOS ---
-@app.route(route="trending", auth_level=func.AuthLevel.ANONYMOUS, methods=["GET"])
-def get_trending_videos(req: func.HttpRequest) -> func.HttpResponse:
+# --- 6. API ENDPOINT UNTUK TOP 10 VIDEOS ---
+@app.route(route="top-videos", auth_level=func.AuthLevel.ANONYMOUS, methods=["GET"])
+def get_top_videos(req: func.HttpRequest) -> func.HttpResponse:
     """
-    API endpoint untuk mengambil trending videos dari MongoDB
-    Query Parameters:
-    - limit (optional, default: 10): Number of videos to return
-    - skip (optional, default: 0): Number of videos to skip for pagination
-    Output: JSON dengan videos, total, limit, skip, hasMore
+    API endpoint untuk mengambil top 10 videos dari MongoDB
+    No pagination - returns all videos from top_videos collection (max 10)
+    Output: JSON dengan videos, count, last_updated
     """
-    logging.info("🚀 Get trending videos API called")
+    logging.info("🚀 Get top videos API called")
 
     try:
-        # Get default page size from environment or use 10
-        default_page_size = int(os.environ.get("TRENDING_VIDEOS_PAGE_SIZE", "10"))
-        
-        # Parse query parameters
-        try:
-            limit = int(req.params.get("limit", str(default_page_size)))
-            skip = int(req.params.get("skip", "0"))
-        except ValueError:
-            return func.HttpResponse(
-                json.dumps({"error": "Invalid limit or skip parameter. Must be integers."}),
-                status_code=400,
-                mimetype="application/json",
-            )
-
-        # Validate parameters
-        if limit < 1 or limit > 100:
-            return func.HttpResponse(
-                json.dumps({"error": "Limit must be between 1 and 100"}),
-                status_code=400,
-                mimetype="application/json",
-            )
-
-        if skip < 0:
-            return func.HttpResponse(
-                json.dumps({"error": "Skip must be non-negative"}),
-                status_code=400,
-                mimetype="application/json",
-            )
-
         # Connect to MongoDB
         try:
             db = get_database()
-            collection = db["historical_data"]
+            collection = db["top_videos"]
         except Exception as e:
             # Log error without exposing connection string
-            logging.error(f"Database connection error (trending endpoint): {str(e)[:100]}")
+            logging.error(f"Database connection error (top-videos endpoint): {str(e)[:100]}")
             return func.HttpResponse(
                 json.dumps({
                     "error": "Database connection failed",
@@ -559,37 +648,23 @@ def get_trending_videos(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json",
             )
 
-        # Query with sorting and pagination
+        # Query all documents from top_videos (no sorting/filtering needed)
         try:
-            # Get total count
-            total = collection.count_documents({})
-
-            # Query all videos to calculate engagement rate and sort
-            # Note: For better performance with large datasets, consider pre-calculating engagement rate
-            all_videos = list(collection.find({}))
+            # Get all documents from top_videos collection
+            raw_videos = list(collection.find({}))
             
-            # Calculate engagement rate for each video and sort
-            videos_with_engagement = []
-            for video in all_videos:
-                stats = video.get("stats", {})
-                play_count = stats.get("play_count", 0)
-                digg_count = stats.get("digg_count", 0)
-                
-                # Calculate engagement rate
-                if play_count > 0:
-                    engagement_rate = (digg_count / play_count) * 100
-                else:
-                    engagement_rate = 0
-                
-                video["_calculated_engagement_rate"] = engagement_rate
-                videos_with_engagement.append(video)
+            logging.info(f"📊 Found {len(raw_videos)} videos in top_videos collection")
             
-            # Sort by engagement rate descending
-            videos_with_engagement.sort(key=lambda x: x["_calculated_engagement_rate"], reverse=True)
+            # Get last_updated timestamp from first video (all should have same timestamp)
+            last_updated = None
+            if raw_videos:
+                last_updated_dt = raw_videos[0].get("last_updated")
+                if last_updated_dt:
+                    if isinstance(last_updated_dt, datetime):
+                        last_updated = last_updated_dt.isoformat()
+                    else:
+                        last_updated = str(last_updated_dt)
             
-            # Apply pagination
-            raw_videos = videos_with_engagement[skip:skip + limit]
-
             # Transform documents with error resilience
             videos = []
             failed_count = 0
@@ -605,23 +680,14 @@ def get_trending_videos(req: func.HttpRequest) -> func.HttpResponse:
             if failed_count > 0:
                 logging.warning(f"Failed to transform {failed_count} out of {len(raw_videos)} documents")
 
-            # Calculate hasMore
-            hasMore = (skip + len(videos)) < total
-            
-            logging.info(f"Trending videos fetched: {len(videos)} videos (skip={skip}, limit={limit}, total={total})")
-
             # Response JSON
             response_data = {
                 "videos": videos,
-                "total": total,
-                "limit": limit,
-                "skip": skip,
-                "hasMore": hasMore,
+                "count": len(videos),
+                "last_updated": last_updated or datetime.now().isoformat(),
             }
 
-            logging.info(
-                f"✅ Trending videos fetched: {len(videos)} videos (skip={skip}, limit={limit}, total={total})"
-            )
+            logging.info(f"✅ Top videos fetched: {len(videos)} videos")
 
             return func.HttpResponse(
                 json.dumps(response_data), status_code=200, mimetype="application/json"
@@ -645,3 +711,6 @@ def get_trending_videos(req: func.HttpRequest) -> func.HttpResponse:
             status_code=500,
             mimetype="application/json",
         )
+
+
+

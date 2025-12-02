@@ -19,14 +19,8 @@ export const TrendingTable: React.FC<TrendingTableProps> = ({
   hasMore,
   isLoading = false,
 }) => {
-  // Sort videos by engagement rate (highest first)
-  const sortedVideos = [...videos].sort((a, b) => {
-    const rateA = parseFloat(a.engagementRate.replace("%", ""));
-    const rateB = parseFloat(b.engagementRate.replace("%", ""));
-    return rateB - rateA; // Descending order
-  });
-
-  const visibleVideos = sortedVideos.slice(0, visibleCount);
+  // Videos are already sorted by engagement rate from backend
+  const visibleVideos = videos.slice(0, visibleCount);
 
   return (
     <div className="w-full">

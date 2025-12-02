@@ -1,46 +1,26 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Sparkles, Zap, TrendingUp, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { TrendingTable } from "../components/TrendingTable";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
-import { useTrendingVideos } from "../hooks/useTrendingVideos";
+import { useTopVideos } from "../hooks/useTopVideos";
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const scrollPositionRef = useRef(0);
-  const sectionRef = useRef<HTMLDivElement>(null);
 
   const {
     videos,
     isLoading,
     error,
-    hasMore,
-    totalCount,
-    loadMore,
     retry,
-  } = useTrendingVideos();
-
-  // Save scroll position before updates
-  useEffect(() => {
-    const handleScroll = () => {
-      scrollPositionRef.current = window.scrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  } = useTopVideos();
 
   const handlePredictClick = () => {
     navigate("/predict");
   };
 
-  const handleLoadMore = async () => {
-    const currentScroll = window.scrollY;
-    await loadMore();
-    // Restore scroll position after load
-    window.scrollTo(0, currentScroll);
-  };
+
 
   return (
     <div className="min-h-screen">
@@ -95,7 +75,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Trending Videos Section */}
-      <section ref={sectionRef} className="py-20 bg-white dark:bg-[#0F172A]">
+      <section className="py-20 bg-white dark:bg-[#0F172A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
           <div className="flex items-center justify-between mb-8">
@@ -107,12 +87,7 @@ export const LandingPage: React.FC = () => {
                 </h2>
               </div>
               <p className="text-gray-600 dark:text-gray-400">
-                Real-time analysis of top-performing content
-                {totalCount > 0 && (
-                  <span className="ml-2 text-violet-600 dark:text-violet-400 font-medium">
-                    ({totalCount} videos)
-                  </span>
-                )}
+                Top 10 videos with highest engagement rates
               </p>
             </div>
           </div>
@@ -170,9 +145,9 @@ export const LandingPage: React.FC = () => {
             <TrendingTable
               videos={videos}
               visibleCount={videos.length}
-              onLoadMore={handleLoadMore}
-              hasMore={hasMore}
-              isLoading={isLoading}
+              onLoadMore={() => {}}
+              hasMore={false}
+              isLoading={false}
             />
           )}
 
